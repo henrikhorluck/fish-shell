@@ -11,6 +11,7 @@ add_test! {"test_string", || {
     use crate::builtins::shared::{STATUS_CMD_ERROR,STATUS_CMD_OK, STATUS_INVALID_ARGS};
     use crate::future_feature_flags::{feature_test, FeatureFlag};
     use crate::future_feature_flags::mutable_fish_features;
+    use cxx::CxxWString;
 
     // TODO: these should be individual tests, not all in one, port when we can run these with `cargo test`
     macro_rules! string_test {
@@ -24,8 +25,8 @@ add_test! {"test_string", || {
 
             assert_eq!($expected_rc.unwrap(), rc, "string builtin returned unexpected return code");
 
-            let string_stream = ffi::get_test_output_ffi(streams);
-            let actual = escape_string(&string_stream.contents().from_ffi(), EscapeStringStyle::default());
+            let string_stream_contents: &CxxWString = &ffi::get_test_output_ffi(&streams);
+            let actual = escape_string(&string_stream_contents.from_ffi(), EscapeStringStyle::default());
             let expected = escape_string($expected_out, EscapeStringStyle::default());
             assert_eq!(expected, actual, "string builtin returned unexpected output");
         };
