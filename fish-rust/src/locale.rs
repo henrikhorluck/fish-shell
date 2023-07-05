@@ -3,7 +3,7 @@ pub use printf_compat::locale::{Locale, C_LOCALE};
 use std::sync::Mutex;
 
 /// Rust libc does not provide LC_GLOBAL_LOCALE, but it appears to be -1 everywhere.
-const LC_GLOBAL_LOCALE: libc::locale_t = (-1_isize) as libc::locale_t;
+pub const LC_GLOBAL_LOCALE: libc::locale_t = (-1_isize) as libc::locale_t;
 
 /// It's CHAR_MAX.
 const CHAR_MAX: libc::c_char = libc::c_char::max_value();

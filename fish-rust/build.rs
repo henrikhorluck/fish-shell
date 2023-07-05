@@ -4,6 +4,15 @@ use std::error::Error;
 fn main() {
     cc::Build::new().file("src/compat.c").compile("libcompat.a");
 
+    if cfg!(any(
+        target_os = "macos",
+        target_os = "linux",
+        target_os = "openbsd",
+        target_os = "freebsd",
+    )) {
+        println!("cargo:rustc-cfg=per_thread_locale");
+    }
+
     let rust_dir = std::env::var("CARGO_MANIFEST_DIR").expect("Env var CARGO_MANIFEST_DIR missing");
     let target_dir =
         std::env::var("FISH_RUST_TARGET_DIR").unwrap_or(format!("{}/{}", rust_dir, "target/"));

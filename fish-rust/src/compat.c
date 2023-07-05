@@ -1,6 +1,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <term.h>
+#if defined(__APPLE__)
+// including xlocale is required for MB_CUR_MAX to support per-thread-locale
+// we only use that feature as part of testing
+#include <xlocale.h>
+#endif
 
 size_t C_MB_CUR_MAX() { return MB_CUR_MAX; }
 

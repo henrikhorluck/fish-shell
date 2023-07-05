@@ -2,6 +2,7 @@ use crate::common::{
     escape_string, str2wcstring, unescape_string, wcs2string, EscapeFlags, EscapeStringStyle,
     UnescapeStringStyle, ENCODE_DIRECT_BASE, ENCODE_DIRECT_END,
 };
+use crate::compat::MB_CUR_MAX;
 use crate::wchar::{widestrs, wstr, WString};
 use crate::wutil::encoding::{wcrtomb, zero_mbstate, AT_LEAST_MB_LEN_MAX};
 use rand::{Rng, RngCore};
@@ -17,9 +18,31 @@ fn setlocale() {
     ];
     for locale in UTF8_LOCALES {
         let locale = std::ffi::CString::new(locale.to_owned()).unwrap();
-        unsafe { libc::setlocale(libc::LC_CTYPE, locale.as_ptr()) };
-        if crate::compat::MB_CUR_MAX() > 1 {
+        #[cfg(per_thread_locale)]
+        {
+            use crate::locale::LC_GLOBAL_LOCALE;
+            let locale_obj = unsafe {
+                libc::newlocale(libc::LC_CTYPE_MASK, locale.as_ptr(), std::ptr::null_mut())
+            };
+
+            if locale_obj.is_null() {
+                continue;
+            }
+
+            let old = unsafe { libc::uselocale(locale_obj) };
+            assert!(!old.is_null());
+            assert!(MB_CUR_MAX() > 1);
+            if old != LC_GLOBAL_LOCALE {
+                unsafe { libc::freelocale(old) };
+            }
             return;
+        }
+        #[cfg(not(per_thread_locale))]
+        {
+            unsafe { libc::setlocale(libc::LC_CTYPE, locale.as_ptr()) };
+            if MB_CUR_MAX() > 1 {
+                return;
+            }
         }
     }
     panic!("No UTF-8 locale found");
@@ -123,16 +146,28 @@ macro_rules! escape_test {
     };
 }
 
+#[cfg_attr(
+    not(per_thread_locale),
+    ignore = "Per-thread locale might not be supported, skipped to avoid flaky tests"
+)]
 #[test]
 fn test_escape_random_script() {
     escape_test!(EscapeStringStyle::default(), UnescapeStringStyle::default());
 }
 
+#[cfg_attr(
+    not(per_thread_locale),
+    ignore = "Per-thread locale might not be supported, skipped to avoid flaky tests"
+)]
 #[test]
 fn test_escape_random_var() {
     escape_test!(EscapeStringStyle::Var, UnescapeStringStyle::Var);
 }
 
+#[cfg_attr(
+    not(per_thread_locale),
+    ignore = "Per-thread locale might not be supported, skipped to avoid flaky tests"
+)]
 #[test]
 fn test_escape_random_url() {
     escape_test!(EscapeStringStyle::Url, UnescapeStringStyle::Url);
@@ -170,10 +205,7 @@ fn str2hex(input: &[u8]) -> String {
     output
 }
 
-/// Test wide/narrow conversion by creating random strings and verifying that the original
-/// string comes back through double conversion.
-#[test]
-fn test_convert() {
+fn convert_test() {
     use rand::random;
 
     let seed: u128 = random::<u128>();
@@ -200,6 +232,23 @@ fn test_convert() {
             seed,
         );
     }
+}
+
+/// Test wide/narrow conversion by creating random strings and verifying that the original
+/// string comes back through double conversion.
+#[test]
+fn test_convert() {
+    convert_test();
+}
+
+#[cfg_attr(
+    not(per_thread_locale),
+    ignore = "Per-thread locale might not be supported, skipped to avoid flaky tests"
+)]
+#[test]
+fn test_convert_utf8() {
+    setlocale();
+    convert_test();
 }
 
 /// Verify that ASCII narrow->wide conversions are correct.
