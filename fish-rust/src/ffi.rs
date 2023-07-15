@@ -43,7 +43,6 @@ include_cpp! {
     #include "reader.h"
     #include "screen.h"
     #include "tokenizer.h"
-    #include "wildcard.h"
     #include "wutil.h"
 
     // We need to block these types so when exposing C++ to Rust.
@@ -75,7 +74,6 @@ include_cpp! {
     generate!("fish_wcwidth")
     generate!("fish_wcswidth")
 
-    generate!("wildcard_match")
     generate!("wgettext_ptr")
 
     generate!("block_t")

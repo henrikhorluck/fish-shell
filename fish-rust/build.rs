@@ -74,6 +74,7 @@ fn main() {
         "src/trace.rs",
         "src/util.rs",
         "src/wait_handle.rs",
+        "src/wildcard.rs",
     ];
     cxx_build::bridges(&source_files)
         .flag_if_supported("-std=c++11")
