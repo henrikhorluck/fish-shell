@@ -18,6 +18,7 @@ mod ast;
 mod builtins;
 mod color;
 mod compat;
+mod complete;
 mod curses;
 mod env;
 mod env_dispatch;
