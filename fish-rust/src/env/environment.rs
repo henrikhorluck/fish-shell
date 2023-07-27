@@ -129,7 +129,7 @@ pub struct EnvStack {
 }
 
 impl EnvStack {
-    fn new() -> EnvStack {
+    pub fn new() -> EnvStack {
         EnvStack {
             inner: EnvStackImpl::new(),
         }

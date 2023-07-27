@@ -515,6 +515,15 @@ const wchar_t *builtin_get_desc(const wcstring &name) {
     return result;
 }
 
+wcstring builtin_get_desc_ffi(const wcstring &name) {
+    const wchar_t *result = L"";
+    const builtin_data_t *builtin = builtin_lookup(name);
+    if (builtin) {
+        result = _(builtin->desc);
+    }
+    return wcstring{result};
+}
+
 static maybe_t<RustBuiltin> try_get_rust_builtin(const wcstring &cmd) {
     if (cmd == L"abbr") {
         return RustBuiltin::Abbr;

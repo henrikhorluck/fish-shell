@@ -386,7 +386,7 @@ impl<'opts, 'args> WildCardMatcher<'opts, 'args> {
             true => arg.to_lowercase(),
             false => arg.to_owned(),
         };
-        let m = wildcard_match(subject, &self.pattern, false);
+        let m = wildcard_match(&subject, &self.pattern, false);
 
         if m ^ self.opts.invert_match {
             self.total_matched += 1;

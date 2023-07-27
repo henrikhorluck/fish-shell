@@ -53,6 +53,7 @@ mod output;
 mod parse_constants;
 mod parse_tree;
 mod parse_util;
+mod parser;
 mod parser_keywords;
 mod path;
 mod print_help;

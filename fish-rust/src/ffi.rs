@@ -108,6 +108,7 @@ include_cpp! {
     generate!("builtin_print_help")
     generate!("builtin_print_error_trailer")
     generate!("builtin_get_names_ffi")
+    generate!("builtin_get_desc_ffi")
 
     generate!("pretty_printer_t")
 
@@ -130,6 +131,7 @@ include_cpp! {
     generate!("reader_status_count")
 
     generate!("get_history_variable_text_ffi")
+    // generate!("history_t")
 
     generate!("is_interactive_session")
     generate!("set_interactive_session")
@@ -149,6 +151,9 @@ include_cpp! {
     generate!("perform_autoload_ffi")
     generate!("complete_get_wrap_targets_ffi")
 }
+
+// Necessary until autoload has been ported to Rust
+unsafe impl Send for autoload_t {}
 
 impl parser_t {
     pub fn get_wait_handles_mut(&mut self) -> &mut WaitHandleStore {

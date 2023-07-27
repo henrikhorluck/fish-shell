@@ -114,7 +114,7 @@ unsafe impl Send for FunctionSet {}
 
 /// Make sure that if the specified function is a dynamically loaded function, it has been fully
 /// loaded. Note this executes fish script code.
-fn load(name: &wstr, parser: &mut parser_t) -> bool {
+pub fn load(name: &wstr, parser: &mut parser_t) -> bool {
     parser.assert_can_execute();
     let mut path_to_autoload: Option<WString> = None;
     // Note we can't autoload while holding the funcset lock.

@@ -14,6 +14,7 @@ pub const SOURCE_OFFSET_INVALID: usize = SourceOffset::MAX as _;
 pub const SOURCE_LOCATION_UNKNOWN: usize = usize::MAX;
 
 bitflags! {
+    #[derive(Default)]
     pub struct ParseTreeFlags: u8 {
         /// attempt to build a "parse tree" no matter what. this may result in a 'forest' of
         /// disconnected trees. this is intended to be used by syntax highlighting.
@@ -40,6 +41,12 @@ bitflags! {
     }
 }
 
+impl From<parse_constants_ffi::SourceRange> for std::ops::Range<usize> {
+    fn from(val: parse_constants_ffi::SourceRange) -> std::ops::Range<usize> {
+        val.start as usize..val.length as usize
+    }
+}
+
 #[cxx::bridge]
 mod parse_constants_ffi {
     extern "C++" {
@@ -50,8 +57,8 @@ mod parse_constants_ffi {
     /// A range of source code.
     #[derive(PartialEq, Eq, Clone, Copy, Debug)]
     pub struct SourceRange {
-        start: u32,
-        length: u32,
+        pub start: u32,
+        pub length: u32,
     }
 
     extern "Rust" {

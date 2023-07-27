@@ -910,7 +910,7 @@ mod expander {
             assert!(!self.flags.contains(ExpandFlags::FOR_COMPLETIONS));
             #[allow(clippy::collapsible_if)]
             if self.completion_set.insert(result.clone()) {
-                if !self.resolved_completions.add(result) {
+                if !self.resolved_completions.add(result.into()) {
                     self.did_overflow = true;
                 }
             }
@@ -1133,13 +1133,7 @@ pub fn wildcard_expand_string(
 ///
 /// \return true if the wildcard matched
 #[must_use]
-pub fn wildcard_match(
-    name: impl AsRef<wstr>,
-    pattern: impl AsRef<wstr>,
-    leading_dots_fail_to_match: bool,
-) -> bool {
-    let name = name.as_ref();
-    let pattern = pattern.as_ref();
+pub fn wildcard_match(name: &wstr, pattern: &wstr, leading_dots_fail_to_match: bool) -> bool {
     // Hackish fix for issue #270. Prevent wildcards from matching . or .., but we must still allow
     // literal matches.
     if leading_dots_fail_to_match && (name == L!(".") || name == L!("..")) {
@@ -1212,7 +1206,7 @@ pub fn wildcard_match(
 // Check if the string has any unescaped wildcards (e.g. ANY_STRING).
 #[inline]
 #[must_use]
-fn wildcard_has_internal(s: impl AsRef<wstr>) -> bool {
+pub fn wildcard_has_internal(s: impl AsRef<wstr>) -> bool {
     s.as_ref()
         .chars()
         .any(|c| matches!(c, ANY_STRING | ANY_STRING_RECURSIVE | ANY_CHAR))
@@ -1220,7 +1214,7 @@ fn wildcard_has_internal(s: impl AsRef<wstr>) -> bool {
 
 /// Check if the specified string contains wildcards (e.g. *).
 #[must_use]
-fn wildcard_has(s: impl AsRef<wstr>) -> bool {
+pub fn wildcard_has(s: impl AsRef<wstr>) -> bool {
     let s = s.as_ref();
     let qmark_is_wild = !feature_test(FeatureFlag::qmark_noglob);
     // Fast check for * or ?; if none there is no wildcard.
@@ -1284,7 +1278,7 @@ mod ffi {
 }
 
 fn wildcard_match_ffi(str: &CxxWString, wc: &CxxWString, leading_dots_fail_to_match: bool) -> bool {
-    wildcard_match(str.from_ffi(), wc.from_ffi(), leading_dots_fail_to_match)
+    wildcard_match(&str.from_ffi(), &wc.from_ffi(), leading_dots_fail_to_match)
 }
 
 fn wildcard_has_ffi(s: &CxxWString) -> bool {

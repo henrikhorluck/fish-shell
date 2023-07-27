@@ -432,6 +432,7 @@ class parser_t : public std::enable_shared_from_this<parser_t> {
     /// Pushes a new block. Returns a pointer to the block, stored in the parser. The pointer is
     /// valid until the call to pop_block().
     block_t *push_block(block_t &&b);
+    block_t *push_block_ffi(std::unique_ptr<block_t> b);
 
     /// Remove the outermost block, asserting it's the given one.
     void pop_block(const block_t *expected);

@@ -87,6 +87,7 @@ std::vector<wcstring> builtin_get_names();
 wcstring_list_ffi_t builtin_get_names_ffi();
 void builtin_get_names(completion_list_t *list);
 const wchar_t *builtin_get_desc(const wcstring &name);
+wcstring builtin_get_desc_ffi(const wcstring &name);
 
 wcstring builtin_help_get(parser_t &parser, const wchar_t *cmd);
 

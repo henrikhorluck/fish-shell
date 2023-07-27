@@ -95,6 +95,13 @@ void parser_t::sync_uvars_and_fire(bool always) {
     }
 }
 
+block_t *parser_t::push_block_ffi(std::unique_ptr<block_t> block) {
+    if (block == nullptr) {
+        return nullptr;
+    }
+    return this->push_block(std::move(*block));
+}
+
 block_t *parser_t::push_block(block_t &&block) {
     block.src_lineno = parser_t::get_lineno();
     block.src_filename = parser_t::current_filename();
