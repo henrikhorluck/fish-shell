@@ -277,7 +277,7 @@ pub struct CompletionReceiver {
 
 // We are only wrapping a `Vec<Completion>`, any non-mutable methods can be safely deferred to the
 // Vec-impl
-
+// Also: A Vec does itself impl Deref for ?mut slices, we are a vec
 impl Deref for CompletionReceiver {
     type Target = [Completion];
 
@@ -286,6 +286,7 @@ impl Deref for CompletionReceiver {
     }
 }
 
+// A mut slice cannot modify the length of the vec, so this is fine
 impl DerefMut for CompletionReceiver {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.completions.as_mut_slice()
@@ -324,18 +325,21 @@ impl CompletionReceiver {
         }
         // TODO: the len impl can be bogus
         self.completions.extend(iter);
+        assert!(
+            self.completions.len() <= self.limit,
+            "ExactSizeIterator returned more items than its len"
+        );
         true
     }
 
     /// Swap our completions with a new list.
     pub fn swap(&mut self, mut lst: Vec<Completion>) {
+        assert!(
+            lst.len() <= self.limit,
+            "Adding too long list to CompletionReceiver"
+        );
         // TODO: trim lst to limit
         mem::swap(&mut self.completions, &mut lst);
-    }
-
-    /// Returns whether our completion list is empty.
-    pub fn empty(&self) -> bool {
-        self.completions.is_empty()
     }
 
     /// Returns the list of completions, clearing it.
